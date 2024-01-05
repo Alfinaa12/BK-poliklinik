@@ -113,7 +113,7 @@ include_once("koneksi.php");
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
       <a href="dashboard.php" class="brand-link">
-        <h4 class="brand-text font-weight-light">Klinik Sejahtera Sentosa</h4>
+        <h4 class="brand-text font-weight-light">Klinik AllCare!</h4>
       </a>
 
       <!-- Sidebar -->
@@ -142,6 +142,14 @@ include_once("koneksi.php");
               </a>
             </li>
             <li class="nav-item">
+              <a href="dashboard.php?page=jadwalPeriksa" class="nav-link">
+                <i class="nav-icon fas fa-solid fa-hospital-user"></i>
+                <p>
+                  Jadwal Periksa
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="dashboard.php?page=poli" class="nav-link">
                 <i class="nav-icon fas fa-solid fa-hospital"></i>
                 <p>
@@ -162,6 +170,14 @@ include_once("koneksi.php");
                 <i class="nav-icon fas fa-solid fa-pills"></i>
                 <p>
                   Obat
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="dashboard.php?page=registerAdmin" class="nav-link">
+                <i class="nav-icon fas fa-solid fa-pills"></i>
+                <p>
+                  Add Admin
                 </p>
               </a>
             </li>

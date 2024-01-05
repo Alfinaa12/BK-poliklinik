@@ -1,289 +1,206 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  </head>
-  <body>
-  <nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">
-      Sistem Informasi Poliklinik
-    </a>
-    <button class="navbar-toggler"
-    type="button" data-bs-toggle="collapse"
-    data-bs-target="#navbarNavDropdown"
-    aria-controls="navbarNavDropdown" aria-expanded="false"
-    aria-label="Toggle navigation">
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="index.php">
-            Home
-          </a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button"
-          data-bs-toggle="dropdown" aria-expanded="false">
-            Data Master
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" href="dokter.php?page=dokter">
-                Dokter
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="pasien.php?page=pasien">
-                Pasien
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="obat.php?page=obat">
-                Obat
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="detail_periksa.php?page=detail_periksa">
-                Detail Periksa
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" 
-          href="periksa.php?page=periksa">
-            Periksa
-          </a>
-        </li>
-      </ul>
+<?php
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+if (isset($_POST['simpanData'])) {
+    $id_daftar_poli = $_POST['id']; // Get the id from the form
+    $id_obat_array = $_POST['id_obat']; // Get the array of selected id_obat values from the form
+    $base_biaya_periksa = 150000;
+    $tgl_periksa = date('Y-m-d H:i:s'); // Get the current datetime
+    $catatan = $_POST['catatan']; // Get the catatan value from the form
+
+    // Calculate the total biaya_periksa
+    $biaya_periksa = $base_biaya_periksa;
+
+    $sql = "INSERT INTO periksa (id_daftar_poli, tgl_periksa, catatan, biaya_periksa) VALUES ('$id_daftar_poli', '$tgl_periksa', '$catatan', '$biaya_periksa')";
+    $tambah = mysqli_query($mysqli, $sql);
+
+    // Get the id_periksa of the record just inserted
+    $id_periksa = mysqli_insert_id($mysqli);
+
+    // Insert into detail_periksa table for each selected id_obat
+    foreach ($id_obat_array as $id_obat) {
+        $sql = "INSERT INTO detail_periksa (id_periksa, id_obat) VALUES ('$id_periksa', '$id_obat')";
+        $tambah = mysqli_query($mysqli, $sql);
+        
+        // Query the obat table to get the harga for the selected id_obat
+        $result = mysqli_query($mysqli, "SELECT harga FROM obat WHERE id = '$id_obat'");
+        $data = mysqli_fetch_assoc($result);
+        $harga_obat = $data['harga'];
+
+        // Update the total biaya_periksa with the harga of each selected id_obat
+        $biaya_periksa += $harga_obat;
+    }
+
+    // Update the total biaya_periksa in the periksa table
+    $update_sql = "UPDATE periksa SET biaya_periksa = '$biaya_periksa' WHERE id = '$id_periksa'";
+    $update_result = mysqli_query($mysqli, $update_sql);
+
+    echo "
+            <script> 
+                alert('Berhasil menambah data.');
+                window.location.href='dashboardDokter.php?page=periksa';
+            </script>
+        ";
+    exit();
+}
+?>
+
+
+<main id="periksapasien-page">
+  <div class="container">
+    <div class="row">
+      <div class="container">
+        <form action="" method="POST">
+          <?php
+                    $id_pasien = '';
+                    $tgl_periksa = '';
+                    $catatan = '';
+                    $nama_pasien = '';
+                    $no_antrian = '';
+                    $keluhan = '';
+                    if (isset($_GET['id'])) {
+                        $get = mysqli_query($mysqli, "
+                                SELECT daftar_poli.*, pasien.nama AS nama
+                                FROM daftar_poli
+                                JOIN pasien ON daftar_poli.id_pasien = pasien.id
+                                WHERE daftar_poli.id='" . $_GET['id'] . "'
+                            ");
+                        while ($row = mysqli_fetch_array($get)) {
+                            $id_pasien = $row['id_pasien'];
+                            $nama_pasien = $row['nama'];
+                            $no_antrian = $row['no_antrian'];
+                            $keluhan = $row['keluhan'];
+                        }
+                    }
+                    ?>
+          <input type="hidden" name="id" value="<?php echo isset($_GET['id']) ? $_GET['id'] : '' ?>">
+          <input type="hidden" name="id_pasien" value="<?php echo $id_pasien; ?>">
+          <input type="hidden" name="id_dokter" value="<?php echo $id_dokter; ?>">
+          <div class="mb-3 w-25">
+            <label for="no_antrian">No. Antrian <span class="text-danger">*</span></label>
+            <input disabled type="text" name="no_antrian" class="form-control" required
+              value="<?php echo $no_antrian ?>">
+          </div>
+          <div class="mb-3 w-25">
+            <label for="id_pasien">Nama Pasien <span class="text-danger">*</span></label>
+            <input disabled type="text" name="id_pasien" class="form-control" required
+              value="<?php echo $nama_pasien ?>">
+          </div>
+          <div class="mb-3 w-25">
+            <label for="catatan">Catatan <span class="text-danger">*</span></label>
+            <textarea type="text" name="catatan" class="form-control" required
+              value="<?php echo $catatan ?>"></textarea>
+          </div>
+          <div class="mb-3 w-25">
+            <label for="id_obat">Obat <span class="text-danger">*</span></label>
+            </br>
+            <select class="form-select" name="id_obat[]" id="id_obat" aria-label="id_obat" multiple>
+              <?php
+                $result = mysqli_query($mysqli, "SELECT * FROM obat");
+
+                while ($data = mysqli_fetch_assoc($result)) {
+                  echo "<option value='" . $data['id'] . "' data-harga='" . $data['harga'] . "'>" . $data['nama_obat'] . " (" . $data['kemasan'] . ")"  . " (Rp " . $data['harga'] . ")" . "</option>";
+              }
+              ?>
+            </select>
+          </div>
+
+          <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            // Initialize Select2 for the id_obat dropdown
+            $('#id_obat').select2({
+              placeholder: 'Pilih Obat'
+            });
+
+            // Add an onchange event listener to the id_obat dropdown
+            $('#id_obat').on('change.select2', function(e) {
+              updateTotalBiayaPeriksa();
+            });
+
+            updateTotalBiayaPeriksa();
+
+          });
+
+          // Function to update the total biaya periksa
+          function updateTotalBiayaPeriksa() {
+            var baseBiayaPeriksa = 150000;
+            var biayaPeriksa = baseBiayaPeriksa;
+
+            // Get selected options from the id_obat dropdown
+            var selectedObats = document.getElementById('id_obat').selectedOptions;
+
+            // Loop through selected options and update biayaPeriksa
+            for (var i = 0; i < selectedObats.length; i++) {
+              var hargaObat = parseFloat(selectedObats[i].getAttribute('data-harga'));
+              biayaPeriksa += parseFloat(hargaObat);
+            }
+
+
+            // Display the updated total biaya periksa
+            document.getElementById('total_biaya_periksa').textContent = 'Total Biaya Periksa: Rp ' + biayaPeriksa
+              .toLocaleString();
+          }
+          </script>
+
+          <!-- Add an element to display the total biaya periksa -->
+          <div id="total_biaya_periksa" class="alert alert-success" role="alert"></div>
+
+          <div class="col mt-3">
+            <div class="col">
+              <button type="submit" name="simpanData" class="btn btn-primary rounded px-3 mt-auto">Simpan</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-responsive mt-3 px-0">
+        <h2 class="ps-0">Data Pasien Saya</h2>
+        <table class="table text-center">
+          <thead class="table-primary">
+            <tr>
+              <th valign="middle">No</th>
+              <th valign="middle">Nama Pasien</th>
+              <th valign="middle">No. Antrian</th>
+              <th valign="middle">Keluhan</th>
+              <th valign="middle">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+                        $id_dokter = $_SESSION['id'];
+                        $result = mysqli_query($mysqli, "
+                                SELECT daftar_poli.*, pasien.nama AS nama, jadwal_periksa.hari, jadwal_periksa.jam_mulai, jadwal_periksa.jam_selesai
+                                FROM daftar_poli
+                                JOIN (
+                                    SELECT id_pasien, MAX(tanggal) as max_tanggal
+                                    FROM daftar_poli
+                                    GROUP BY id_pasien
+                                ) as latest_poli ON daftar_poli.id_pasien = latest_poli.id_pasien AND daftar_poli.tanggal = latest_poli.max_tanggal
+                                JOIN jadwal_periksa ON daftar_poli.id_jadwal = jadwal_periksa.id 
+                                JOIN pasien ON daftar_poli.id_pasien = pasien.id
+                                LEFT JOIN periksa ON daftar_poli.id = periksa.id_daftar_poli
+                                WHERE jadwal_periksa.id_dokter = '$id_dokter' AND periksa.id_daftar_poli IS NULL
+                            ");
+                        $no = 1;
+                        while ($data = mysqli_fetch_array($result)) :
+                        ?>
+            <tr>
+              <td><?php echo $no++ ?></td>
+              <td><?php echo $data['nama'] ?></td>
+              <td><?php echo $data['no_antrian'] ?></td>
+              <td><?php echo $data['keluhan'] ?></td>
+              <td>
+                <a class="btn btn-success rounded-pill px-3"
+                  href="dashboardDokter.php?page=periksa&id=<?php echo $data['id'] ?>">Periksa</a>
+
+              </td>
+            </tr>
+            <?php endwhile; ?>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-</nav>  
-<?php
-include'koneksi.php';
-?>
-<body>
-<div class="container">
-    </nav><div class="form-group mx-sm-3 mb-2">
-    <form class="form row" method="POST" action="" name="myForm" onsubmit="return validate()">
-    <!-- Kode php untuk menghubungkan form dengan database -->
-    <?php
-   
-$id_pasien = '';
-$id_dokter = '';
-$tgl_periksa = '';
-$catatan = '';
-$biaya_periksa = '';
-$id = '';
-   
-if (isset($_GET['id']) && $_GET['aksi'] == 'edit') {
-  $id = $_GET['id'];
-  $query = "SELECT * FROM periksa WHERE id = $id";
-  $result = mysqli_query($mysqli, $query);
-
-  if (mysqli_num_rows($result) == 1) {
-      $data = mysqli_fetch_assoc($result);
-      $id_pasien = $data['id_pasien'];
-      $id_dokter = $data['id_dokter'];
-      $tgl_periksa = $data['tgl_periksa'];
-      $catatan = $data['catatan'];
-      $biaya_periksa = $data['biaya_periksa'];
-  }
-
-    ?>
-        <input type="hidden" name="id" value="<?php echo
-        $_GET['id'] ?>">
-    <?php
-    }
-    ?>
-    <div class="col">
-        <label for="inputNama" class="form-label fw-bold">
-            Nama Pasien
-        </label>
-        <select class="form-control" name="id_pasien">
-        <?php
-        $selected = '';
-        $pasien = mysqli_query($mysqli, "SELECT * FROM pasien");
-        while ($data = mysqli_fetch_array($pasien)) {
-            if ($data['id'] == $id_pasien) {
-                $selected = 'selected="selected"';
-            } else {
-                $selected = '';
-            }
-        ?>
-            <option value="<?php echo $data['id'] ?>" <?php echo $selected ?>><?php echo $data['nama'] ?></option>
-        <?php
-        }
-        ?>
-    </select>
-    </div>
-    <div class="col">
-        <label for="inputAlamat" class="form-label fw-bold">
-            Nama Dokter
-        </label>
-        <select class="form-control" name="id_dokter">
-        <?php
-        $selected = '';
-        $dokter = mysqli_query($mysqli, "SELECT * FROM dokter");
-        while ($data = mysqli_fetch_array($dokter)) {
-            if ($data['id'] == $id_dokter) {
-                $selected = 'selected="selected"';
-            } else {
-                $selected = '';
-            }
-        ?>
-            <option value="<?php echo $data['id'] ?>" <?php echo $selected ?>><?php echo $data['nama'] ?></option>
-        <?php
-        }
-        ?>
-    </select>
-    </div>
-    <div class="col mb-2">
-        <label for="inputTanggal Periksa" class="form-label fw-bold">
-        Tanggal Periksa
-        </label>
-        <input type="date" class="form-control" name="tgl_periksa" id="inputTgl_periksa" placeholder="Tanggal Periksa" value="<?php echo $tgl_periksa; ?>">
-    </div>
-    <div class="col mb-2">
-        <label for="inputCatatan" class="form-label fw-bold">
-        Catatan
-        </label>
-        <input type="text" class="form-control" name="catatan" id="inputCatatan" placeholder="Catatan" value="<?php echo $catatan; ?>">
-    </div>
-    <div class="col mb-2">
-        <label for="inputBiaya_periksa" class="form-label fw-bold">
-        Biaya Periksa
-        </label>
-        <input type="integer" class="form-control" name="biaya_periksa" id="inputBiaya_periksa" placeholder="Biaya Periksa" value="<?php echo $biaya_periksa; ?>">
-    </div>
-    <div class="col">
-        <button type="submit" class="btn btn-primary rounded-pill px-3" name="simpan">Simpan</button>
-    </div>
-    <!-- Table-->
-<table class="table table-hover">
-    <!--thead atau baris judul-->
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Nama Pasien</th>
-            <th scope="col">Nama Dokter</th>
-            <th scope="col">Tanggal Periksa</th>
-            <th scope="col">Catatan</th>
-            <th scope="col">Biaya Periksa</th>
-            <th scope="col">Aksi</th>
-        </tr>
-    </thead>
-    <!--tbody berisi isi tabel sesuai dengan judul atau head-->
-    <tbody>
-</div>
-<form method="post" action="periksa.php">
-<?php
-$result = mysqli_query($mysqli, "SELECT pr.*,d.nama as 'nama_dokter', p.nama as 'nama_pasien' FROM periksa pr LEFT JOIN dokter d ON (pr.id_dokter=d.id) LEFT JOIN pasien p ON (pr.id_pasien=p.id) ORDER BY id ASC");
-$no = 1;
-while ($data = mysqli_fetch_array($result)) {
-?>
-                                <tr>
-                                <th scope="row"><?php echo $data['id'] ?></th>
-                                <td><?php echo $data['nama_pasien'] ?></td>
-                                <td><?php echo $data['nama_dokter'] ?></td>
-                                <td><?php echo $data['tgl_periksa'] ?></td>
-                                <td><?php echo $data['catatan'] ?></td>
-                                <td><?php echo $data['biaya_periksa'] ?></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a class="btn btn-primary rounded-pill px-3" href="periksa.php?page=periksa&aksi=edit&id=<?php echo $data['id'] ?>">Edit</a>
-                                        <a class="btn btn-danger rounded-pill px-3" href="periksa.php?page=periksa&aksi=hapus&id=<?php echo $data['id'] ?>">Hapus</a>
-                                    </div>
-                                </td>
-                            </tr>
-    <?php
-}
-?>
-</form>
-<?php
-
-$id_pasien = '';
-$id_dokter = '';
-$tgl_periksa = '';
-$catatan = '';
-$biaya_periksa = '';
-$id = '';
-
-$daftar_dokter = mysqli_query($mysqli, "SELECT id_dokter, nama FROM dokter");
-$daftar_pasien = mysqli_query($mysqli, "SELECT id_pasien, nama FROM pasien");
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['simpan'])) {
-    $id_pasien = $_POST['id_pasien'];
-    $id_dokter = $_POST['id_dokter'];
-    $tgl_periksa = $_POST['tgl_periksa'];
-    $catatan = $_POST['catatan'];
-    $biaya_periksa = $_POST['biaya_periksa'];
-
-    if (!empty($_POST['id'])) {
-        $id = $_POST['id'];
-        $query = "UPDATE periksa SET id_pasien = $id_pasien, id_dokter = $id_dokter, tgl_periksa = '$tgl_periksa', catatan = '$catatan', biaya_periksa = '$biaya_periksa' WHERE id = $id";
-    } else {
-        $query = "INSERT INTO periksa (id_pasien, id_dokter, tgl_periksa, catatan, biaya_periksa) VALUES ($id_pasien, $id_dokter, '$tgl_periksa', '$catatan', '$biaya_periksa')";
-    }
-
-    if (mysqli_query($mysqli, $query)) {
-        echo "<script>alert('Data berhasil disimpan');</script>";
-    } else {
-        echo "<script>alert('Terjadi kesalahan: " . mysqli_error($mysqli) . "');</script>";
-    }
-}
-
-
-if (isset($_GET['id']) && $_GET['aksi'] == 'hapus') {
-  $id = $_GET['id'];
-  $query = "DELETE FROM periksa WHERE id = $id";
-  if (mysqli_query($mysqli, $query)) {
-      echo "<script>
-          if (confirm('Data berhasil dihapus. Kembali ke halaman Periksa?')) {
-              window.location.href = 'periksa.php?page=periksa';
-          } else {
-              window.location.href = 'periksa.php';
-          }
-      </script>";
-  } else {
-      echo "<script>alert('Terjadi kesalahan: " . mysqli_error($mysqli) . "');</script>";
-  }
-}
-
-if (isset($_GET['id']) && $_GET['aksi'] == 'edit') {
-  $id = $_GET['id'];
-  $query = "SELECT * FROM periksa WHERE id = $id";
-  $result = mysqli_query($mysqli, $query);
-
-  if (mysqli_num_rows($result) == 1) {
-      $data = mysqli_fetch_assoc($result);
-      $id_pasien = $data['id_pasien'];
-      $id_dokter = $data['id_dokter'];
-      $tgl_periksa = $data['tgl_periksa'];
-      $catatan = $data['catatan'];
-      $biaya_periksa = $data['biaya_periksa'];
-  }
-}
-
-$query = "SELECT periksa.id, 
-               periksa.id_pasien, 
-               periksa.id_dokter, 
-               periksa.tgl_periksa, 
-               periksa.catatan, 
-               periksa.biaya_periksa, 
-               pasien.nama AS nama_pasien, 
-               dokter.nama AS nama_dokter
-        FROM periksa
-        LEFT JOIN pasien ON periksa.id_pasien = pasien.id_pasien
-        LEFT JOIN dokter ON periksa.id_dokter = dokter.id_dokter";
-
-$result = mysqli_query($mysqli, $query);
-
-?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-</body>
-</html>
+</main>
