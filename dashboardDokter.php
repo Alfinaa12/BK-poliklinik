@@ -121,7 +121,7 @@ include_once("koneksi.php");
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
       <a href="dashboardDokter.php" class="brand-link">
-        <h4 class="brand-text font-weight-light">Klinik Sejahtera Sentosa</h4>
+        <h4 class="brand-text font-weight-light">Klinik AllCare!</h4>
       </a>
 
       <!-- Sidebar -->
