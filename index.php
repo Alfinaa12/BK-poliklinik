@@ -4,6 +4,39 @@ if (!isset($_SESSION)) {
 }
 
 include_once("koneksi.php");
+
+// Proses registrasi jika pengguna belum memiliki akun
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_user'])) {
+    $reg_username = $_POST['reg_username'];
+    $reg_password = $_POST['reg_password'];
+    $reg_confirm_password = $_POST['reg_confirm_password'];
+
+    if ($reg_password === $reg_confirm_password) {
+        $query = "SELECT * FROM user WHERE username = '$reg_username'";
+        $result = $mysqli->query($query);
+
+        if ($result === false) {
+            die("Query error: " . $mysqli->error);
+        }
+
+        if ($result->num_rows == 0) {
+            $hashed_password = password_hash($reg_password, PASSWORD_DEFAULT);
+
+            $insert_query = "INSERT INTO user (username, password) VALUES ('$reg_username', '$hashed_password')";
+            if (mysqli_query($mysqli, $insert_query)) {
+                echo "<script>
+                alert('Registrasi Berhasil'); 
+                </script>";
+            } else {
+                $error = "Registrasi gagal";
+            }
+        } else {
+            $error = "Username sudah digunakan";
+        }
+    } else {
+        $error = "Password tidak cocok";
+    }
+}
 ?>
 
 <!doctype html>
