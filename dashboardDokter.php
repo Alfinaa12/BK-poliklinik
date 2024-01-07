@@ -91,7 +91,7 @@ include_once("koneksi.php");
         if (isset($_SESSION['nip'])) {
             $doctorNIP = $_SESSION['nip'];
 
-            // Fetch the doctor's name from the database using the existing connection
+            // Ambil nama dokter dari database menggunakan koneksi yang ada
             $query = "SELECT nama FROM dokter WHERE nip = '$doctorNIP'";
             $result = mysqli_query($mysqli, $query);
 
@@ -99,7 +99,7 @@ include_once("koneksi.php");
                 $row = mysqli_fetch_assoc($result);
                 $doctorName = $row['nama'];
             } else {
-                $doctorName = "Unknown"; // Default value if the doctor is not found
+                $doctorName = "Unknown"; // Nilai default jika dokter tidak ditemukan
             }
         ?>
           <ul class="navbar-nav ms-auto">
@@ -117,7 +117,7 @@ include_once("koneksi.php");
     </nav>
     <!-- /.navbar -->
 
-    <!-- Main Sidebar Container -->
+    <!-- Kontainer Sidebar Utama -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
       <a href="dashboardDokter.php" class="brand-link">
@@ -126,13 +126,12 @@ include_once("koneksi.php");
 
       <!-- Sidebar -->
       <div class="sidebar">
-        <!-- Sidebar user panel (optional) -->
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
           <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-            <!-- Add icons to the links using the .nav-icon class
-              with font-awesome or any other icon font library -->
+            <!-- Tambahkan ikon ke tautan menggunakan kelas .nav-icon
+              dengan font-awesome atau pustaka font ikon lainnya -->
             <li class="nav-item">
               <a href="dashboardDokter.php" class="nav-link">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -173,7 +172,7 @@ include_once("koneksi.php");
       <!-- /.sidebar -->
     </aside>
 
-    <!-- Content Wrapper. Contains page content -->
+    <!-- Pembungkus Konten. Berisi konten halaman -->
     <div class="content-wrapper">
       <!-- Content Header (Page header) -->
       <div class="content-header">
@@ -231,7 +230,7 @@ include_once("koneksi.php");
 
     <!-- Control Sidebar -->
     <aside class="control-sidebar control-sidebar-dark">
-      <!-- Control sidebar content goes here -->
+      <!-- Kontrol konten sidebar ada di sini -->
     </aside>
     <!-- /.control-sidebar -->
   </div>
