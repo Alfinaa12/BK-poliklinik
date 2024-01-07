@@ -19,7 +19,7 @@
         </div>
       </div>
       <div class="wave">
-        <!-- Your SVG Wave Code for this section -->
+        <!-- Kode Gelombang SVG Anda untuk bagian ini -->
       </div>
     </section>
 
