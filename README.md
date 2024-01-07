@@ -4,3 +4,8 @@ Untuk login sbg admin
    Ussername : admina
 3. Ussername : alfinaaa
    Password : alfina123
+Untuk login sbg admin
+1. Ussername : 0002334384729
+   Password : geto123
+2. Ussername : 33441256673
+   password : oreki123
