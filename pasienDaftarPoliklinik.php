@@ -7,17 +7,17 @@
         $keluhan = $_POST['keluhan'];
         $id_jadwal = $_POST['id_jadwal'];
     
-        // Check if the patient has already registered
+        // Untuk memeriksa apakah pasien sudah mendaftar
         $check_query = "SELECT * FROM daftar_poli WHERE id_pasien = '".$_SESSION['id_pasien']."'";
         $check_result = $mysqli->query($check_query);
         
-        // Check if the form fields are not empty
+        // Untuk memeriksa apakah kolom formulir tidak kosong
         $query = "SELECT MAX(no_antrian) as max_no FROM daftar_poli WHERE id_jadwal = '$id_jadwal'";
         $result = $mysqli->query($query);
         $row = $result->fetch_assoc();
         $no_antrian = $row['max_no'] !== null ? $row['max_no'] + 1 : 1;
 
-        // Insert the new poli registration into the daftar_poli table
+        // Masukkan registrasi poli baru ke dalam tabel daftar_poli
         $insert_query = "INSERT INTO daftar_poli (id_pasien, id_jadwal, keluhan, no_antrian, tanggal) VALUES ('".$_SESSION['id_pasien']."', '$id_jadwal', '$keluhan', '$no_antrian', NOW())";
         if (mysqli_query($mysqli, $insert_query)) {
             $success = "No antrian anda adalah $no_antrian";
@@ -123,7 +123,7 @@ $dokter_schedules = $result->fetch_all(MYSQLI_ASSOC);
                 <label for="id_jadwal">Jadwal Dokter <span class="text-danger">*</span></label>
                 <select disabled class="form-select" name="id_jadwal" aria-label="id_jadwal">
                   <option value="" selected>Pilih Jadwal...</option>
-                  <!-- Options will be dynamically populated using JavaScript -->
+                  <!-- Opsi akan diisi secara dinamis menggunakan JavaScript -->
                 </select>
               </div>
 
@@ -145,7 +145,7 @@ $dokter_schedules = $result->fetch_all(MYSQLI_ASSOC);
 </main>
 
 <?php
-// Display the no_antrian alert
+// Tampilan informasi no_antrian
     if (isset($_GET['no_antrian'])) {
         $success = "No antrian anda adalah ".$_GET['no_antrian']."";
     }
@@ -196,12 +196,12 @@ document.querySelector("select[name='id_dokter']").addEventListener('change', fu
   let listGroup = document.querySelector(".list-group");
 
   if (id_dokter == "") {
-    // If no doctor is selected, disable the dropdown and show a message
+    // Jika tidak ada dokter yang dipilih, nonaktifkan dropdown dan tampilkan pesan
     selectJadwal.disabled = true;
     listGroup.innerHTML =
       "<li class='list-group-item disabled text-center'>Anda harus memilih dokter terlebih dahulu!</li>";
   } else {
-    // Fetch the schedule for the selected doctor and populate the dropdown
+    // Ambil jadwal untuk dokter yang dipilih dan isi dropdown
     fetch('getJadwalHelper.php', {
         method: 'POST',
         headers: {
@@ -221,10 +221,10 @@ document.querySelector("select[name='id_dokter']").addEventListener('change', fu
             selectJadwal.add(option);
           });
 
-          selectJadwal.disabled = false; // Enable the dropdown
-          listGroup.innerHTML = ""; // Clear the list group
+          selectJadwal.disabled = false; // Aktifkan tarik-turun
+          listGroup.innerHTML = ""; // Hapus grup daftar
         } else {
-          // If no schedule is available, show a message
+          // Jika tidak ada jadwal yang tersedia, tampilkan pesan
           selectJadwal.disabled = true;
           listGroup.innerHTML = "<li class='list-group-item disabled text-center'>Jadwal tidak tersedia</li>";
         }
@@ -232,7 +232,7 @@ document.querySelector("select[name='id_dokter']").addEventListener('change', fu
   }
 });
 
-// Add an event listener to the dropdown to enable the submit button when a schedule is selected
+// Tambahkan pendengar acara ke dropdown untuk mengaktifkan tombol kirim ketika jadwal dipilih
 document.querySelector("select[name='id_jadwal']").addEventListener('change', function() {
   document.querySelector("button[type=submit]").removeAttribute('disabled');
 });
