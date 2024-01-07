@@ -9,7 +9,7 @@
                 <p class="text-justify">Selamat DatangDi Poliklinik AllCare!</p>
               </div>
               <div class="col">
-                <button class="btn btn-outline-primary">Alodokter sudag membantu banyak pasien setiap bulannya.</button>
+                <button class="btn btn-outline-primary">AllCare sudah membantu banyak pasien setiap bulannya.</button>
               </div>
             </div>
           </div>
@@ -33,7 +33,7 @@
                 <p class="card-text">Poliklinik adalah tempat pelayanan yang mempunyai tugas untuk melakukan pemeriksaan 
                     kepada pasien secara umum dengan mengetahui indikasi atau gejala yang diderita oleh pasien.</p>
                 <a href="#" class="btn btn-primary">
-                    <img src="dokter.png" alt="View Details" style="width: 250px; height: auto;">
+                    <img src="foto 1.jpg" alt="View Details" style="width: 250px; height: auto;">
                 </a>
 
               </div>
@@ -45,7 +45,7 @@
                 <h5 class="card-title">Kesehatan</h5>
                 <p class="card-text">Lindungi dirimu sendiri, waspada gejala awal kanker.</p>
                 <a href="#" class="btn btn-primary">
-                <img src="dokter.png" alt="View Details" style="width: 250px; height: auto;">
+                <img src="foto-2.png" alt="View Details" style="width: 250px; height: auto;">
                 </a>
               </div>
             </div>
