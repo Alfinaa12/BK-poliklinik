@@ -13,10 +13,11 @@ if (isset($_POST['simpan'])) {
     $hari = $_POST['hari'];
     $jam_mulai = $_POST['jam_mulai'];
     $jam_selesai = $_POST['jam_selesai'];
+    $status = $_POST['status'];
 
     if (isset($_POST['id'])) {
         $id = $_POST['id'];
-        $sql = "UPDATE jadwal_periksa SET id_dokter='$id_dokter', hari='$hari', jam_mulai='$jam_mulai', jam_selesai='$jam_selesai' WHERE id = '" . $_POST['id'] . "'";
+        $sql = "UPDATE jadwal_periksa SET id_dokter='$id_dokter', hari='$hari', jam_mulai='$jam_mulai', jam_selesai='$jam_selesai', status ='$status' WHERE id = '" . $_POST['id'] . "'";
         $edit = mysqli_query($mysqli, $sql);
 
         echo "
@@ -26,7 +27,8 @@ if (isset($_POST['simpan'])) {
                 </script>
             ";
     } else {
-        $sql = "INSERT INTO jadwal_periksa (id_dokter, hari, jam_mulai, jam_selesai) VALUES ('$id_dokter', '$hari', '$jam_mulai', '$jam_selesai')";
+      $sql = "INSERT INTO jadwal_periksa (id_dokter, hari, jam_mulai, jam_selesai, status) VALUES ('$id_dokter', '$hari', '$jam_mulai', '$jam_selesai', '$status')";
+
         $tambah = mysqli_query($mysqli, $sql);
 
         echo "
@@ -59,7 +61,52 @@ if (isset($_GET['aksi'])) {
         }
     }
 }
+// Tambahkan logika untuk mengubah status
+if (isset($_GET['aksi'])) {
+  if ($_GET['aksi'] == 'hapus') {
+      $hapus = mysqli_query($mysqli, "DELETE FROM jadwal_periksa WHERE id = '" . $_GET['id'] . "'");
+
+      if ($hapus) {
+          echo "
+              <script> 
+                  alert('Berhasil menghapus data.');
+                  document.location='dashboard.php?page=jadwalPeriksa';
+              </script>
+          ";
+      } else {
+          echo "
+              <script> 
+                  alert('Gagal menghapus data: " . mysqli_error($mysqli) . "');
+                  document.location='dashboard.php?page=jadwalPeriksa';
+              </script>
+          ";
+      }
+  } elseif ($_GET['aksi'] == 'ubahStatus') {
+      $id = $_GET['id'];
+      
+
+      $updateStatus = mysqli_query($mysqli, "UPDATE jadwal_periksa SET status = '$status' WHERE id = '$id'");
+
+      if ($updateStatus) {
+          echo "
+              <script> 
+                  alert('Status berhasil diubah.');
+                  document.location='dashboard.php?page=jadwalPeriksa';
+              </script>
+          ";
+      } else {
+          echo "
+              <script> 
+                  alert('Gagal mengubah status: " . mysqli_error($mysqli) . "');
+                  document.location='dashboard.php?page=jadwalPeriksa';
+              </script>
+          ";
+      }
+  }
+}
+
 ?>
+
 <main id="jadwalPeriksa">
   <div class="container">
     <div class="row">
@@ -137,11 +184,16 @@ if (isset($_GET['aksi'])) {
               <th valign="left">Jam Mulai</th>
               <th valign="left">Jam Selesai</th>
               <th valign="left">Aksi</th>
+              <th valign="left">Status</th>
+
+
             </tr>
           </thead>
           <tbody>
             <?php
-              $result = mysqli_query($mysqli, "SELECT dokter.nama, jadwal_periksa.id, jadwal_periksa.hari, jadwal_periksa.jam_mulai, jadwal_periksa.jam_selesai FROM dokter JOIN jadwal_periksa ON dokter.id = jadwal_periksa.id_dokter");
+              $result = mysqli_query($mysqli, "SELECT dokter.nama, jadwal_periksa.id, 
+              jadwal_periksa.hari, jadwal_periksa.jam_mulai, jadwal_periksa.jam_selesai, 
+              jadwal_periksa.status FROM dokter JOIN jadwal_periksa ON dokter.id = jadwal_periksa.id_dokter");
               $no = 1;
               while ($data = mysqli_fetch_array($result)) :
             ?>
@@ -157,6 +209,16 @@ if (isset($_GET['aksi'])) {
                 <a class="btn btn-danger rounded-pill px-3"
                   href="dashboard.php?page=jadwalPeriksa&id=<?php echo $data['id'] ?>&aksi=hapus">Hapus</a>
               </td>
+              <td>
+              <?php
+              if ($data['status'] == 0) {
+                echo '<a class="btn btn-sm btn-success" href="dashboard.php?page=jadwalPeriksa&id=' . $data['id'] . '&aksi=ubahStatus">Aktif</a>';
+              } else {
+                echo '<a class="btn btn-sm btn-danger" href="dashboard.php?page=jadwalPeriksa&id=' . $data['id'] . '&aksi=ubahStatus">Tidak Aktif</a>';
+}
+?>
+
+                  </td>
             </tr>
 
             <?php endwhile; ?>
